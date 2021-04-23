@@ -2,14 +2,16 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\PostRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
- * @ORM\Entity(repositoryClass=PostRepository::class)
+ * @ORM\Entity(repositoryClass=PostRepository::class),
  * @ApiResource(
  *     normalizationContext={"groups" = {"read:Post:collection"}},
  *     denormalizationContext={"groups" = {"write:Post"}},
@@ -18,8 +20,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "normalization_context" = {"groups"= {"read:Post:collection", "read:Post:item", "read:Post"}}
  *       }
  *     },
- *     paginationItemsPerPage=2
- * )
+ *     paginationItemsPerPage=2,
+ *     paginationMaximumItemsPerPage=10,
+ *     paginationClientItemsPerPage=true,
+ * ),
+ * @ApiFilter(SearchFilter::class, properties={"title": "partial"})
  */
 class Post
 {
