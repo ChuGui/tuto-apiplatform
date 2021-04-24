@@ -9,16 +9,64 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use App\Controller\PostPublishController;
+use App\Controller\PostCountController;
 
 /**
  * @ORM\Entity(repositoryClass=PostRepository::class),
  * @ApiResource(
  *     normalizationContext={"groups" = {"read:Post:collection"}},
  *     denormalizationContext={"groups" = {"write:Post"}},
+ *     collectionOperations={
+ *          "get",
+ *          "post",
+ *          "count" = {
+ *              "method" = "GET",
+ *              "path" = "/posts/count",
+ *              "controller" = PostCountController::class,
+ *              "filters" = {},
+ *              "pagination_enabled" = false,
+ *              "openapi_context" = {
+ *                  "summary" = "Récupère le nombre total d'articles",
+ *                  "parameters" = {
+ *                      {
+ *                          "in" = "query",
+ *                          "name" = "online",
+ *                          "schema" = {
+ *                              "type" = "integer",
+ *                              "maximum" = "1",
+ *                              "minimum" = "0",
+ *                          },
+ *                          "description" = "Filtre les articles en lignes"
+ *                      }
+ *                  },
+ *                  "responses" = {
+ *                      "200" = {
+ *                          "description" = "OK",
+ *                          "content" = {
+ *                              "application/json" = {
+ *                                  "schema" = {
+ *                                      "type" = "integer",
+ *                                      "example" = 3,
+ *                                  }
+ *                              }
+ *                          },
+ *                      }
+ *                  }
+ *              }
+ *          }
+ *     },
  *     itemOperations={
+ *          "put",
+ *          "delete",
  *          "get"= {
  *          "normalization_context" = {"groups"= {"read:Post:collection", "read:Post:item", "read:Post"}}
- *       }
+ *          },
+ *          "publish" = {
+ *              "method" = "POST",
+ *              "path" = "/posts/{id}/publish",
+ *              "controller" = PostPublishController::class
+ *          },
  *     },
  *     paginationItemsPerPage=2,
  *     paginationMaximumItemsPerPage=10,
@@ -75,6 +123,12 @@ class Post
      * @Assert\Valid()
      */
     private $category;
+
+    /**
+     * @ORM\Column(type="boolean", options={"default": "0"})
+     * @Groups({"read:Post:collection"})
+     */
+    private $online = false;
 
     public function __construct()
     {
@@ -155,6 +209,18 @@ class Post
     public function setCategory(?Category $category): self
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function getOnline(): ?bool
+    {
+        return $this->online;
+    }
+
+    public function setOnline(bool $online): self
+    {
+        $this->online = $online;
 
         return $this;
     }
