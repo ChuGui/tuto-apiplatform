@@ -65,7 +65,10 @@ use App\Controller\PostCountController;
  *          "publish" = {
  *              "method" = "POST",
  *              "path" = "/posts/{id}/publish",
- *              "controller" = PostPublishController::class
+ *              "controller" = PostPublishController::class,
+ *              "openapi_context" = {
+ *                  "summary" = "Permet de publier un article",
+ *              }
  *          },
  *     },
  *     paginationItemsPerPage=2,
