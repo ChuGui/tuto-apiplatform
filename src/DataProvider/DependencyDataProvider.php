@@ -9,31 +9,16 @@ use ApiPlatform\Core\DataProvider\ItemDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use ApiPlatform\Core\Exception\ResourceClassNotSupportedException;
 use App\Entity\Dependency;
+use App\Repository\DependencyRepository;
 use Ramsey\Uuid\Uuid;
 
 class DependencyDataProvider implements ContextAwareCollectionDataProviderInterface, RestrictedDataProviderInterface, ItemDataProviderInterface
 {
+    private DependencyRepository $dependencyRepository;
 
-    private string $rootPath;
-
-    private function getDependencies(): array{
-        $path = $this->rootPath . '/composer.json';
-        $json = json_decode(file_get_contents($path), true);
-        return $json['require'];
-    }
-
-    public function __construct(string $rootPath)
+    public function __construct( DependencyRepository $dependencyRepository)
     {
-        $this->rootPath = $rootPath;
-    }
-
-    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
-    {
-        $items = [];
-        foreach ($this->getDependencies() as $name => $version) {
-            $items[] = new Dependency(Uuid::uuid5(Uuid::NAMESPACE_URL, $name)->toString(), $name, $version);
-        }
-        return $items;
+        $this->dependencyRepository = $dependencyRepository;
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
@@ -43,13 +28,11 @@ class DependencyDataProvider implements ContextAwareCollectionDataProviderInterf
 
     public function getItem(string $resourceClass, $id, string $operationName = null, array $context = [])
     {
-        $dependencies = $this->getDependencies();
-        foreach ($dependencies as $name => $version) {
-            $uuid = Uuid::uuid5(Uuid::NAMESPACE_URL, $name)->toString();
-            if($uuid = $id) {
-                return new Dependency($uuid, $name,$version);
-            }
-        }
-        return null;
+        return $this->dependencyRepository->find($id);
+    }
+
+    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
+    {
+        return $this->dependencyRepository->findAll();
     }
 }
