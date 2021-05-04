@@ -22,6 +22,9 @@ use ApiPlatform\Core\Action\NotFoundAction;
  *              "method" = "GET",
  *              "controller" = MeController::class,
  *              "read" = false,
+ *              "openapi_context" = {
+ *                  "security" = {"cookieAuth" = {}}
+ *              },
  *          }
  *     },
  *     itemOperations={

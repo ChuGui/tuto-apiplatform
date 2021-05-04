@@ -29,9 +29,6 @@ class OpenApiFactory implements OpenApiFactoryInterface
             };
         }
 
-        $schema = $openApi->getComponents()->getSecuritySchemes();
-        $schemas['cookieAuth'] = new \ArrayObject([]);
-
         return $openApi;
     }
 }
